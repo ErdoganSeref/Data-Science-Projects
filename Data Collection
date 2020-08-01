@@ -1,0 +1,58 @@
+import urllib.error
+import urllib.request
+import bs4
+
+# parses the html file of the url into an BeautifulSoup object
+def to_soup(url):
+    with urllib.request.urlopen(url) as response:
+        return bs4.BeautifulSoup(response.read(), "html.parser")
+
+def get_data(url):
+    soup = to_soup(url)
+    
+    # predefined columns
+    data = {
+        "kaufpreis": "-",
+        "typ": "-",
+        "wohnflaeche-ca": "-",
+        "grundstueck-ca": "-",
+        "nutzflaeche-ca": "-",
+        "bezugsfrei-ab": "-",
+        "zimmer": "-",
+        "schlafzimmer": "-",
+        "badezimmer": "-",
+        "etagenanzahl": "-",
+        "garage-stellplatz": "-",
+        "baujahr": "-",
+        "qualitaet-der-ausstattung": "-",
+        "modernisierung-sanierung": "-",
+        "objektzustand": "-",
+        "heizungsart": "-",
+        "wesentliche-energietraeger": "-",
+        "energieausweis": "-",
+        "energieausweistyp": "-",
+        "endenergieverbrauch": "-",
+        "energieeffizienzklasse": "-"
+        }
+    
+    # scraping the two column layouts
+    for key in data.keys():
+        try:
+            data.update(
+                {key: str(soup.find("dd",class_=f"is24qa-{key} grid-item three-fifths").string)}
+                )
+        except (KeyError, AttributeError):
+            pass
+    
+    data.update(
+        Bundesland = "-",
+        Stadt = "-",
+        Ort = "-"
+        )
+        
+    # scraping the navigation bar
+    for key, a_tag in zip(["Bundesland", "Stadt", "Ort"], soup("a","breadcrumb__link")[1:]):
+        data.update(
+            {key: str(a_tag.string)}
+            )
+    return data
