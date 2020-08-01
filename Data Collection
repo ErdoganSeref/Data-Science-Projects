@@ -6,7 +6,8 @@ import bs4
 def to_soup(url):
     with urllib.request.urlopen(url) as response:
         return bs4.BeautifulSoup(response.read(), "html.parser")
-
+        
+# scrapes the data of a single house listing
 def get_data(url):
     soup = to_soup(url)
     
@@ -45,13 +46,13 @@ def get_data(url):
             pass
     
     data.update(
-        Bundesland = "-",
-        Stadt = "-",
-        Ort = "-"
+        State = "-",
+        City = "-",
+        Place = "-"
         )
         
     # scraping the navigation bar
-    for key, a_tag in zip(["Bundesland", "Stadt", "Ort"], soup("a","breadcrumb__link")[1:]):
+    for key, a_tag in zip(["State", "City", "Place"], soup("a","breadcrumb__link")[1:]):
         data.update(
             {key: str(a_tag.string)}
             )
